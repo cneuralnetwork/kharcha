@@ -53,14 +53,18 @@ For iOS, use manual entry or paste a bank SMS. iOS does not expose general inbox
 
 ## Add optional Render backup
 
-The app is useful without Render. For cross-device recovery, deploy the API and connect a **persistent** Render Postgres database. The included [Render Blueprint](render.yaml) configures a free web service and a paid `0.1c-256mb` Postgres instance in Singapore. **Review Render's current pricing before applying the Blueprint.** The paid database is deliberate: [Render's free Postgres expires after 30 days](https://render.com/docs/free), so it is unsuitable as the only copy of a real backup.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/cneuralnetwork/kharcha)
 
-1. In Render, create a Blueprint from this GitHub repository and review the proposed web service and database.
-2. Apply it. Render sets `DATABASE_URL` from the database and starts the API. The API creates its table at startup.
+The app is useful without Render. If you want cross-device recovery, the button opens this repository's [Render Blueprint](render.yaml) in your Render account. It proposes a free API web service and a paid, persistent `0.1c-256mb` Postgres database in Singapore. **Review the database cost before approving the deploy.** [Render's free Postgres expires after 30 days](https://render.com/docs/free), so it is unsuitable as the only copy of a real backup.
+
+1. Click **Deploy to Render**, sign in, choose your workspace, and review the proposed web service and database.
+2. Approve the Blueprint if the cost works for you. Render sets `DATABASE_URL` from the database and starts the API. The API creates its table at startup.
 3. Visit `https://<your-service>.onrender.com/healthz`; it should return `{"ok":true}`.
 4. In `mobile/.env`, set `EXPO_PUBLIC_BACKUP_API_URL=https://<your-service>.onrender.com`.
 5. Restart Metro, or rebuild the installed app. `EXPO_PUBLIC_` values are compiled into the client. Never put a database password or secret there.
 6. In **You → Encrypted backup**, create a recovery code, store it privately, then tap **Back up now**. To restore on another installed app, enter that code in the same screen.
+
+The Blueprint leaves automatic deploys off, so changes pushed to this public repository will not update your service unexpectedly. Deploy a newer commit from your Render dashboard when you choose to update.
 
 The recovery code contains both the access token and encryption key. Whoever has it can restore the snapshot. Losing it means the server cannot decrypt your backup. The API stores ciphertext only, along with a token hash, backup ID, version, and timestamp. Remote deletion is available in the app. See [PRIVACY.md](PRIVACY.md) for the full data flow.
 

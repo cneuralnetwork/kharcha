@@ -4,6 +4,7 @@ services:
     runtime: node
     region: singapore
     plan: free
+    autoDeployTrigger: off
     rootDir: api
     buildCommand: npm ci && npm run build
     startCommand: npm start
