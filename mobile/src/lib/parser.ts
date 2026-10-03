@@ -44,32 +44,57 @@ export function categoryFor(merchant: string, body = ''): Category {
   return 'Transfers';
 }
 
-export function parseBankSms(body: string): ParsedSms | null {
-  if (!body || body.length > 4000 || otpPattern.test(body) || promoPattern.test(body)) return null;
+function transactionDirection(body: string): Direction | null {
   const debit = debitPattern.test(body);
   const credit = creditPattern.test(body);
   if (debit === credit) return null;
-  const contextual = contextualAmountPatterns.map(pattern => body.match(pattern)).find(Boolean);
-  const numeric = (contextual?.[1] ?? body.match(amountPattern)?.[1] ?? '').replaceAll(',', '');
+  return debit ? 'debit' : 'credit';
+}
+
+function isTransactionMessage(body: string): boolean {
+  return Boolean(body) && body.length <= 4000 && !otpPattern.test(body) && !promoPattern.test(body);
+}
+
+function transactionAmount(body: string): { amountPaise: number; contextual: boolean } | null {
+  const contextualMatch = contextualAmountPatterns.map(pattern => body.match(pattern)).find(Boolean);
+  const numeric = (contextualMatch?.[1] ?? body.match(amountPattern)?.[1] ?? '').replaceAll(',', '');
   const amount = Number(numeric);
   if (!Number.isFinite(amount) || amount <= 0 || amount > 10_000_000) return null;
-  let merchant = '';
+  return { amountPaise: Math.round(amount * 100), contextual: Boolean(contextualMatch) };
+}
+
+function transactionMerchant(body: string): string {
   for (const pattern of merchantPatterns) {
-    merchant = body.match(pattern)?.[1]?.trim() ?? '';
-    if (merchant) break;
+    const merchant = body.match(pattern)?.[1]?.trim() ?? '';
+    if (merchant) return merchant.replace(/\s+(?:Ref|UPI|via)$/i, '').trim();
   }
-  merchant = merchant.replace(/\s+(?:Ref|UPI|via)$/i, '').trim();
+  return '';
+}
+
+function transactionConfidence(merchant: string, accountLast4: string | null, reference: string | null, contextual: boolean): number {
+  let base = 0.45;
+  if (merchant && accountLast4 && reference) base = 0.95;
+  else if (merchant && accountLast4) base = 0.84;
+  else if (merchant) base = 0.68;
+  return contextual ? base : Math.min(base, 0.68);
+}
+
+export function parseBankSms(body: string): ParsedSms | null {
+  if (!isTransactionMessage(body)) return null;
+  const direction = transactionDirection(body);
+  if (!direction) return null;
+  const amount = transactionAmount(body);
+  if (!amount) return null;
+  const merchant = transactionMerchant(body);
   const accountLast4 = body.match(accountPattern)?.[1] ?? null;
   const reference = body.match(referencePattern)?.[1] ?? null;
-  const baseConfidence = merchant && accountLast4 && reference ? 0.95 : merchant && accountLast4 ? 0.84 : merchant ? 0.68 : 0.45;
-  const confidence = contextual ? baseConfidence : Math.min(baseConfidence, 0.68);
   return {
     merchant: merchant ? titleCase(merchant) : 'Unknown merchant',
-    amountPaise: Math.round(amount * 100),
-    direction: debit ? 'debit' : 'credit',
+    amountPaise: amount.amountPaise,
+    direction,
     category: categoryFor(merchant, body),
     accountLast4,
     reference,
-    confidence,
+    confidence: transactionConfidence(merchant, accountLast4, reference, amount.contextual),
   };
 }

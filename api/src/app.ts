@@ -15,6 +15,16 @@ function authorized(storedHash: string, authorization: unknown): boolean {
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
+type BackupPayload = { version?: number; ciphertext?: string };
+
+function validBackup(id: string, token: string, body: BackupPayload | undefined): body is { version: number; ciphertext: string } {
+  if (!idPattern.test(id) || !tokenPattern.test(token) || !body) return false;
+  const { version, ciphertext } = body;
+  return Number.isSafeInteger(version) && version! >= 0 &&
+    typeof ciphertext === 'string' && ciphertext.length <= 5_000_000 &&
+    ciphertext.length >= 32 && ciphertextPattern.test(ciphertext);
+}
+
 export function buildApp(store: BackupStore, allowedOrigins: string[] = []) {
   const app = Fastify({ bodyLimit: 5_500_000, logger: false });
 
@@ -44,13 +54,11 @@ export function buildApp(store: BackupStore, allowedOrigins: string[] = []) {
     return { version: record.version, ciphertext: record.ciphertext, updatedAt: record.updatedAt };
   });
 
-  app.put<{ Params: { id: string }; Body: { version?: number; ciphertext?: string } }>('/v1/backups/:id', async (request, reply) => {
+  app.put<{ Params: { id: string }; Body: BackupPayload }>('/v1/backups/:id', async (request, reply) => {
     const { id } = request.params;
     const body = request.body;
     const token = request.headers.authorization?.startsWith('Bearer ') ? request.headers.authorization.slice(7) : '';
-    if (!idPattern.test(id) || !tokenPattern.test(token) || !body || !Number.isSafeInteger(body.version) ||
-        body.version! < 0 || typeof body.ciphertext !== 'string' || body.ciphertext.length > 5_000_000 ||
-        body.ciphertext.length < 32 || !ciphertextPattern.test(body.ciphertext)) {
+    if (!validBackup(id, token, body)) {
       return reply.code(400).send({ error: 'invalid_backup' });
     }
     const existing = await store.get(id);

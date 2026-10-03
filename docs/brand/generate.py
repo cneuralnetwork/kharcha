@@ -33,6 +33,35 @@ BODY = lambda size: font("hanken-grotesk", "HankenGrotesk_400Regular", size)
 MEDIUM = lambda size: font("hanken-grotesk", "HankenGrotesk_600SemiBold", size)
 MONO = lambda size: font("ibm-plex-mono", "IBMPlexMono_500Medium", size)
 
+LAYOUTS = {
+    True: {
+        "ticket_pad": 34, "ticket_label_size": 18, "ticket_body_size": 20,
+        "ticket_amount_size": 46, "ticket_line_offset": 186,
+        "ticket_entry_size": 16, "ticket_merchant_size": 27, "ticket_detail_size": 15,
+        "ticket_body_y": 95, "ticket_amount_y": 138,
+        "ticket_right": 48, "ticket_top": 74, "ticket_bottom": 56,
+        "trail_x": 488, "trail_x_step": 12, "trail_y_step": 5,
+        "left": 62, "brand_y": 70, "brand_size": 66,
+        "title_y": 208, "title_size": 53, "title_step": 73,
+        "subtitle_offset": 192, "subtitle_size": 21,
+        "raw_offset": 156, "raw_right": 645, "raw_bottom": 46,
+        "raw_label_size": 16, "raw_text_size": 15,
+    },
+    False: {
+        "ticket_pad": 47, "ticket_label_size": 21, "ticket_body_size": 24,
+        "ticket_amount_size": 59, "ticket_line_offset": 219,
+        "ticket_entry_size": 18, "ticket_merchant_size": 33, "ticket_detail_size": 19,
+        "ticket_body_y": 112, "ticket_amount_y": 164,
+        "ticket_right": 100, "ticket_top": 112, "ticket_bottom": 104,
+        "trail_x": 630, "trail_x_step": 15, "trail_y_step": 6,
+        "left": 100, "brand_y": 108, "brand_size": 91,
+        "title_y": 281, "title_size": 75, "title_step": 102,
+        "subtitle_offset": 260, "subtitle_size": 27,
+        "raw_offset": 207, "raw_right": 780, "raw_bottom": 73,
+        "raw_label_size": 18, "raw_text_size": 18,
+    },
+}
+
 
 def xy(box):
     return tuple(round(value * SCALE) for value in box)
@@ -44,49 +73,51 @@ def txt(draw, x, y, value, face, fill):
 
 def ticket(draw, x, y, w, h, compact=False):
     s = SCALE
+    layout = LAYOUTS[compact]
     draw.rounded_rectangle(xy((x, y, x + w, y + h)), radius=25 * s, fill=LEAF)
     for cx in range(x + 18, x + w, 28):
         draw.ellipse(xy((cx - 9, y + h - 9, cx + 9, y + h + 9)), fill=BG)
-    pad = 34 if compact else 47
-    txt(draw, x + pad, y + 33, "EXAMPLE · OCTOBER 2026", MEDIUM(18 if compact else 21), ON_LEAF)
-    txt(draw, x + pad, y + (95 if compact else 112), "Spent, so far", BODY(20 if compact else 24), ON_LEAF)
-    txt(draw, x + pad, y + (138 if compact else 164), "₹2,480", MONO(46 if compact else 59), ON_LEAF)
-    line = y + h - (186 if compact else 219)
+    pad = layout["ticket_pad"]
+    txt(draw, x + pad, y + 33, "EXAMPLE · OCTOBER 2026", MEDIUM(layout["ticket_label_size"]), ON_LEAF)
+    txt(draw, x + pad, y + layout["ticket_body_y"], "Spent, so far", BODY(layout["ticket_body_size"]), ON_LEAF)
+    txt(draw, x + pad, y + layout["ticket_amount_y"], "₹2,480", MONO(layout["ticket_amount_size"]), ON_LEAF)
+    line = y + h - layout["ticket_line_offset"]
     draw.line(xy((x + pad, line, x + w - pad, line)), fill="#527B63", width=2 * s)
-    txt(draw, x + pad, line + 26, "LATEST ENTRY", MEDIUM(16 if compact else 18), ON_LEAF)
-    txt(draw, x + pad, line + 67, "Zomato", DISPLAY(27 if compact else 33), ON_LEAF)
-    txt(draw, x + pad, line + 117, "−₹2,480  ·  Food & dining", MONO(15 if compact else 19), ON_LEAF)
+    txt(draw, x + pad, line + 26, "LATEST ENTRY", MEDIUM(layout["ticket_entry_size"]), ON_LEAF)
+    txt(draw, x + pad, line + 67, "Zomato", DISPLAY(layout["ticket_merchant_size"]), ON_LEAF)
+    txt(draw, x + pad, line + 117, "−₹2,480  ·  Food & dining", MONO(layout["ticket_detail_size"]), ON_LEAF)
 
 
 def cover(width, height, name):
     canvas = Image.new("RGB", (width * SCALE, height * SCALE), BG)
     d = ImageDraw.Draw(canvas)
     compact = width < 1400
+    layout = LAYOUTS[compact]
     tx = 735 if compact else 930
-    tw = width - tx - (48 if compact else 100)
-    ty = 74 if compact else 112
-    th = height - ty - (56 if compact else 104)
+    tw = width - tx - layout["ticket_right"]
+    ty = layout["ticket_top"]
+    th = height - ty - layout["ticket_bottom"]
 
     # A thin trail of points belongs to an SMS becoming a receipt; it is not a page grid.
     for index in range(24):
-        px = (488 if compact else 630) + index * (12 if compact else 15)
-        py = (height - 192) - index * (5 if compact else 6)
+        px = layout["trail_x"] + index * layout["trail_x_step"]
+        py = (height - 192) - index * layout["trail_y_step"]
         if px < tx + 5:
             d.ellipse(xy((px, py, px + 3, py + 3)), fill="#536553")
 
     ticket(d, tx, ty, tw, th, compact)
-    left = 62 if compact else 100
-    txt(d, left, 70 if compact else 108, "kharcha.", DISPLAY(66 if compact else 91), INK)
-    title_y = 208 if compact else 281
+    left = layout["left"]
+    txt(d, left, layout["brand_y"], "kharcha.", DISPLAY(layout["brand_size"]), INK)
+    title_y = layout["title_y"]
     for i, line in enumerate(["A little clearer", "every day."]):
-        txt(d, left, title_y + i * (73 if compact else 102), line, DISPLAY(53 if compact else 75), INK)
-    sub_y = title_y + (192 if compact else 260)
-    txt(d, left, sub_y, "The spending ledger already in your messages.", BODY(21 if compact else 27), MUTED)
-    raw_y = height - (156 if compact else 207)
-    d.rounded_rectangle(xy((left, raw_y - 16, 645 if compact else 780, height - (46 if compact else 73))), radius=14*SCALE, fill=SURFACE)
-    txt(d, left + 20, raw_y + 3, "EXAMPLE BANK SMS", MEDIUM(16 if compact else 18), GOLD)
-    txt(d, left + 20, raw_y + 40, "A/C ··3381 debited by INR 2,480.00", MONO(15 if compact else 18), INK)
-    txt(d, left + 20, raw_y + 69, "to VPA zomato@pay", MONO(15 if compact else 18), MUTED)
+        txt(d, left, title_y + i * layout["title_step"], line, DISPLAY(layout["title_size"]), INK)
+    sub_y = title_y + layout["subtitle_offset"]
+    txt(d, left, sub_y, "The spending ledger already in your messages.", BODY(layout["subtitle_size"]), MUTED)
+    raw_y = height - layout["raw_offset"]
+    d.rounded_rectangle(xy((left, raw_y - 16, layout["raw_right"], height - layout["raw_bottom"])), radius=14*SCALE, fill=SURFACE)
+    txt(d, left + 20, raw_y + 3, "EXAMPLE BANK SMS", MEDIUM(layout["raw_label_size"]), GOLD)
+    txt(d, left + 20, raw_y + 40, "A/C ··3381 debited by INR 2,480.00", MONO(layout["raw_text_size"]), INK)
+    txt(d, left + 20, raw_y + 69, "to VPA zomato@pay", MONO(layout["raw_text_size"]), MUTED)
     canvas.resize((width, height), Image.Resampling.LANCZOS).save(OUT / name, optimize=True)
 
 

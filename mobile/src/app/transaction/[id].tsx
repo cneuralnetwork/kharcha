@@ -4,13 +4,43 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Action, Body, Caption, Screen, ScreenHead, SmsSlip } from '@/ui/Kit';
 import { CategoryPicker, Field } from '@/ui/Forms';
 import { dateLabel, signedMoney } from '@/lib/format';
-import type { Category, TransactionStatus } from '@/lib/model';
+import type { Category, Transaction, TransactionStatus } from '@/lib/model';
 import { fonts, usePalette } from '@/ui/theme';
 import { useLedger } from '@/state/LedgerProvider';
 import { showMessage } from '@/ui/dialog';
 
-export default function TransactionDetail() {
+function TransactionSummary({ transaction: t }: { transaction: Transaction }) {
   const p = usePalette();
+  const source = t.status === 'manual' ? 'Added by you' : `from ${t.sender ?? 'SMS'}`;
+  return <View style={{ marginTop: 5, marginBottom: 26 }}>
+    <Text style={{ fontFamily: fonts.mono, fontSize: 33, color: t.direction === 'debit' ? p.debit : p.credit }}>
+      {signedMoney(t.amountPaise, t.direction, true)}
+    </Text>
+    <Caption style={{ marginTop: 5 }}>{dateLabel(t.occurredAt)} · {source}</Caption>
+  </View>;
+}
+
+const statusLabels: Record<TransactionStatus, string> = {
+  review: 'Needs review', ignored: 'Ignored', manual: 'Manual', auto: 'In ledger',
+};
+
+function TransactionFacts({ transaction: t }: { transaction: Transaction }) {
+  const p = usePalette();
+  return <View style={{ backgroundColor: p.surface, borderRadius: 12, padding: 15, gap: 13, marginBottom: 28 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Paid from</Caption><Body>{t.accountLast4 ? `Account ··${t.accountLast4}` : 'Not in source'}</Body></View>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Reference</Caption><Body>{t.reference ?? 'Not in source'}</Body></View>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Current state</Caption><Body>{statusLabels[t.status]}</Body></View>
+  </View>;
+}
+
+function TransactionActions({ transaction, busy, onSave }: { transaction: Transaction; busy: boolean; onSave: (status: TransactionStatus) => void }) {
+  return <View style={{ gap: 9, paddingBottom: 15 }}>
+    <Action title={busy ? 'Saving…' : 'Save and include'} disabled={busy} onPress={() => onSave(transaction.status === 'manual' ? 'manual' : 'auto')} />
+    {transaction.status !== 'ignored' ? <Action title="Ignore this message" variant="ghost" disabled={busy} onPress={() => onSave('ignored')} /> : null}
+  </View>;
+}
+
+export default function TransactionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { transactions, setTransaction } = useLedger();
   const t = transactions.find(item => item.id === id);
@@ -26,16 +56,10 @@ export default function TransactionDetail() {
     finally { setBusy(false); }
   }
   return <Screen><ScreenHead title="The whole story" back />
-    <View style={{ marginTop: 5, marginBottom: 26 }}><Text style={{ fontFamily: fonts.mono, fontSize: 33, color: t.direction === 'debit' ? p.debit : p.credit }}>{signedMoney(t.amountPaise, t.direction, true)}</Text><Caption style={{ marginTop: 5 }}>{dateLabel(t.occurredAt)} · {t.status === 'manual' ? 'Added by you' : `from ${t.sender ?? 'SMS'}`}</Caption></View>
+    <TransactionSummary transaction={t} />
     <View style={{ gap: 19, marginBottom: 28 }}><Field label="Name or place" value={merchant} onChangeText={setMerchant} /><CategoryPicker value={category} onChange={setCategory} /></View>
-    <View style={{ backgroundColor: p.surface, borderRadius: 12, padding: 15, gap: 13, marginBottom: 28 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Paid from</Caption><Body>{t.accountLast4 ? `Account ··${t.accountLast4}` : 'Not in source'}</Body></View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Reference</Caption><Body>{t.reference ?? 'Not in source'}</Body></View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Caption>Current state</Caption><Body>{t.status === 'review' ? 'Needs review' : t.status === 'ignored' ? 'Ignored' : t.status === 'manual' ? 'Manual' : 'In ledger'}</Body></View>
-    </View>
+    <TransactionFacts transaction={t} />
     {t.rawBody ? <View style={{ marginBottom: 24 }}><SmsSlip transaction={t} /></View> : null}
-    <View style={{ gap: 9, paddingBottom: 15 }}><Action title={busy ? 'Saving…' : 'Save and include'} disabled={busy} onPress={() => void save(t.status === 'manual' ? 'manual' : 'auto')} />
-      {t.status !== 'ignored' ? <Action title="Ignore this message" variant="ghost" disabled={busy} onPress={() => void save('ignored')} /> : null}
-    </View>
+    <TransactionActions transaction={t} busy={busy} onSave={status => void save(status)} />
   </Screen>;
 }

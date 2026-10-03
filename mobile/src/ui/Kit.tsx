@@ -55,12 +55,20 @@ export function ScreenHead({ title, back = false, action }: { title: string; bac
   </View>;
 }
 
+function actionColors(variant: 'primary' | 'secondary' | 'ghost' | 'leaf', p: Palette) {
+  return {
+    primary: { backgroundColor: p.marigold, color: p.onMarigold },
+    leaf: { backgroundColor: p.leaf, color: p.onLeaf },
+    secondary: { backgroundColor: p.surface, color: p.ink },
+    ghost: { backgroundColor: 'transparent', color: p.ink },
+  }[variant];
+}
+
 export function Action({ title, onPress, icon, variant = 'primary', disabled = false, compact = false }: {
   title: string; onPress: () => void; icon?: IconName; variant?: 'primary' | 'secondary' | 'ghost' | 'leaf'; disabled?: boolean; compact?: boolean;
 }) {
   const p = usePalette();
-  const backgroundColor = variant === 'primary' ? p.marigold : variant === 'leaf' ? p.leaf : variant === 'secondary' ? p.surface : 'transparent';
-  const color = variant === 'primary' ? p.onMarigold : variant === 'leaf' ? p.onLeaf : p.ink;
+  const { backgroundColor, color } = actionColors(variant, p);
   return <Pressable accessibilityRole="button" accessibilityLabel={title} disabled={disabled} onPress={onPress}
     style={({ pressed }) => [{ minHeight: compact ? 38 : 48, paddingHorizontal: compact ? 12 : 18, borderRadius: 12,
       backgroundColor, borderWidth: variant === 'secondary' ? 1 : 0, borderColor: p.strongLine,

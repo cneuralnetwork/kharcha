@@ -35,6 +35,10 @@ interface LedgerContextValue {
 
 const LedgerContext = createContext<LedgerContextValue | null>(null);
 
+function scanStart(full: boolean, lastScanAt: number): number {
+  return full || !lastScanAt ? Date.now() - 90 * 86400_000 : lastScanAt - 120_000;
+}
+
 export function LedgerProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -69,8 +73,7 @@ export function LedgerProvider({ children }: { children: React.ReactNode }) {
     setBusy(true);
     setError(null);
     try {
-      const since = full || !preferences.lastScanAt
-        ? Date.now() - 90 * 86400_000 : preferences.lastScanAt - 120_000;
+      const since = scanStart(full, preferences.lastScanAt);
       const candidates = await readBankSms(senders, since, preferences.autoAdd);
       let added = 0;
       for (const candidate of candidates) if (await addTransaction(candidate)) added++;

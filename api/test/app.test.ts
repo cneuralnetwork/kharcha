@@ -53,3 +53,27 @@ test('server retains only ciphertext and a hash of the access token', async () =
   assert.equal(JSON.stringify(record).includes(token), false);
   await app.close();
 });
+
+test('rejects malformed backup writes before storing anything', async () => {
+  const store = new MemoryStore();
+  const app = buildApp(store);
+  const id = randomUUID();
+  const token = randomBytes(32).toString('base64url');
+  const auth = { authorization: `Bearer ${token}` };
+  const ciphertext = randomBytes(40).toString('base64');
+  const invalid = [
+    { version: -1, ciphertext },
+    { version: 0.5, ciphertext },
+    { version: 0, ciphertext: 'short' },
+    { version: 0, ciphertext: '*'.repeat(40) },
+    { ciphertext },
+  ];
+  for (const payload of invalid) {
+    const response = await app.inject({ method: 'PUT', url: `/v1/backups/${id}`, headers: auth, payload });
+    assert.equal(response.statusCode, 400);
+  }
+  assert.equal((await app.inject({ method: 'PUT', url: `/v1/backups/${id}`, payload: { version: 0, ciphertext } })).statusCode, 400);
+  assert.equal((await app.inject({ method: 'PUT', url: '/v1/backups/not-an-id', headers: auth, payload: { version: 0, ciphertext } })).statusCode, 400);
+  assert.equal(store.data.size, 0);
+  await app.close();
+});

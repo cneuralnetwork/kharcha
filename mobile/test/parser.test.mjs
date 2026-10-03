@@ -39,3 +39,11 @@ test('stops the merchant before payment rail wording', () => {
   assert.equal(result?.category, 'Shopping');
   assert.equal(result?.amountPaise, 49900);
 });
+
+test('scores credit messages and caps confidence without a contextual amount', () => {
+  const contextual = parseBankSms('A/C X3381 credited by INR 500.00 from ACME Ref 123456789012');
+  assert.equal(contextual?.direction, 'credit');
+  assert.equal(contextual?.confidence, 0.95);
+  const fallback = parseBankSms('Credited to A/C X3381 from ACME. Ref 123456789012. INR 500.00');
+  assert.equal(fallback?.confidence, 0.68);
+});
