@@ -10,7 +10,7 @@ This repository contains a working Expo app and a small Render backup API. The a
 
 | Feature | Android build | iOS build | Web preview |
 | --- | --- | --- | --- |
-| Add and edit expenses, categories, budgets, and insights | Yes | Yes | Yes |
+| Add and edit entries, assign categories, set budgets, and view insights | Yes | Yes | Yes |
 | Paste a bank SMS and review the parsed entry | Yes | Yes | Yes |
 | Read allowlisted bank SMS from the device inbox | Yes, with `READ_SMS` permission | No platform API | No browser API |
 | Optional encrypted backup to Render | Yes | Yes | Not enabled |
@@ -33,10 +33,9 @@ For a quick manual-entry preview, press `w` for web or open the app in Expo Go. 
 
 ### Read SMS on Android
 
-Expo Go cannot load the custom `KharchaSms` native module. Use a native build:
+Expo Go cannot load the custom `KharchaSms` native module. From `kharcha/mobile`, use a native build:
 
 ```bash
-cd mobile
 npm ci
 npx expo run:android
 ```
@@ -110,6 +109,8 @@ The parser is intentionally conservative. It requires a debit or credit signal a
 
 ## Build and verify
 
+From the repository root, run:
+
 ```bash
 cd mobile
 npm ci
@@ -118,6 +119,7 @@ npm run typecheck
 npm test
 npx expo export --platform web
 npx expo export --platform android
+npx expo export --platform ios
 
 cd ../api
 npm ci

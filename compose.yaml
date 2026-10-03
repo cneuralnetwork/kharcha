@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:18-alpine
+    image: postgres:16-alpine
     environment:
       POSTGRES_USER: kharcha
       POSTGRES_PASSWORD: kharcha
@@ -8,7 +8,7 @@ services:
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
-      - kharcha-postgres:/var/lib/postgresql
+      - kharcha-postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U kharcha -d kharcha"]
       interval: 5s
