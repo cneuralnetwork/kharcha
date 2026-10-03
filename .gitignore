@@ -1,0 +1,12 @@
+**/node_modules/
+**/.expo/
+**/dist/
+**/build/
+**/.env
+**/.env.local
+**/.env.*.local
+**/coverage/
+mobile/android/
+mobile/ios/
+*.log
+.DS_Store

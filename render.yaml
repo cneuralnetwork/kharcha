@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: kharcha-backup-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: api
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22.21.1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kharcha-backups
+          property: connectionString
+
+databases:
+  - name: kharcha-backups
+    region: singapore
+    plan: 0.1c-256mb
+    databaseName: kharcha
+    ipAllowList: []

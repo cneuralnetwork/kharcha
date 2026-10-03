@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["dev.kharcha.sms.KharchaSmsModule"]
+  }
+}

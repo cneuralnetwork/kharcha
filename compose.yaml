@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: kharcha
+      POSTGRES_PASSWORD: kharcha
+      POSTGRES_DB: kharcha
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - kharcha-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kharcha -d kharcha"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  kharcha-postgres:

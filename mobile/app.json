@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Kharcha",
+    "slug": "kharcha",
+    "scheme": "kharcha",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "experiments": { "typedRoutes": true },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.kharcha.app"
+    },
+    "android": {
+      "package": "dev.kharcha.app",
+      "permissions": ["android.permission.READ_SMS"],
+      "adaptiveIcon": {
+        "backgroundColor": "#121412",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-font",
+      "expo-status-bar"
+    ]
+  }
+}
