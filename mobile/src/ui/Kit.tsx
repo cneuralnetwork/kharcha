@@ -43,12 +43,12 @@ export function Screen({ children, scroll = true, inset = true }: { children: Re
   </SafeAreaView>;
 }
 
-export function ScreenHead({ title, eyebrow, back = false, action }: { title: string; eyebrow?: string; back?: boolean; action?: { icon: IconName; label: string; onPress: () => void } }) {
+export function ScreenHead({ title, back = false, action }: { title: string; back?: boolean; action?: { icon: IconName; label: string; onPress: () => void } }) {
   const p = usePalette();
   return <View style={{ paddingTop: 18, paddingBottom: 16 }}>
-    <View style={{ minHeight: back || action || eyebrow ? 35 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+    <View style={{ minHeight: back || action ? 35 : 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       {back ? <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={{ padding: 5, marginLeft: -5 }}><Icon name="back" color={p.ink} /></Pressable>
-        : <Caption>{eyebrow}</Caption>}
+        : action ? <View style={{ flex: 1 }} /> : null}
       {action ? <Pressable onPress={action.onPress} accessibilityRole="button" accessibilityLabel={action.label} style={{ padding: 7, marginRight: -7 }}><Icon name={action.icon} color={p.ink} size={21} /></Pressable> : null}
     </View>
     <Title compact={back}>{title}</Title>
