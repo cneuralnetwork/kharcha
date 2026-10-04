@@ -7,14 +7,18 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "experiments": { "typedRoutes": true },
+    "experiments": {
+      "typedRoutes": true
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.kharcha.app"
     },
     "android": {
       "package": "dev.kharcha.app",
-      "permissions": ["android.permission.READ_SMS"],
+      "permissions": [
+        "android.permission.READ_SMS"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#121412",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,6 +37,13 @@
       "expo-secure-store",
       "expo-font",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b4f0e637-267f-4e82-9230-6bbbdd527a93"
+      }
+    },
+    "owner": "deepon"
   }
 }
