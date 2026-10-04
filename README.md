@@ -6,6 +6,8 @@
 
 This repository contains a working Expo app and a small Render backup API. The app works without an account or backend. The API is used only when you opt into encrypted backup.
 
+**Install on Android:** [Download Kharcha 1.0.0 APK](https://github.com/cneuralnetwork/kharcha/releases/download/v1.0.0/Kharcha-v1.0.0-android.apk) (Android 7.0+, 114 MB). Open the download on your device and allow installation from your browser or file manager if prompted. Manual entry works immediately; SMS access is requested only if you enable the bank SMS reader. See the [release notes and SHA-256 checksum](https://github.com/cneuralnetwork/kharcha/releases/tag/v1.0.0). This build has not yet been smoke-tested on a physical device.
+
 ## What you can do
 
 | Feature | Android build | iOS build | Web preview |
@@ -17,7 +19,7 @@ This repository contains a working Expo app and a small Render backup API. The a
 
 The Android reader uses a small local Expo module. It reads only messages from enabled sender IDs. Common OTP and promotion patterns are filtered; parsing is heuristic, so review entries against your bank records. The app never asks for a bank password or login.
 
-## Start using it
+## Run from source
 
 You need Node.js **22.13+**, npm, and Git. Clone the repository, then install the app dependencies:
 
