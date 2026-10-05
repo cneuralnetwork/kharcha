@@ -1,7 +1,18 @@
 {
   "name": "kharcha-mobile",
   "version": "1.0.0",
+  "license": "MIT",
   "main": "expo-router/entry",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cneuralnetwork/kharcha.git",
+    "directory": "mobile"
+  },
+  "bugs": "https://github.com/cneuralnetwork/kharcha/issues",
+  "homepage": "https://github.com/cneuralnetwork/kharcha#readme",
+  "engines": {
+    "node": ">=22.13"
+  },
   "dependencies": {
     "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
     "@expo-google-fonts/hanken-grotesk": "^0.4.3",
