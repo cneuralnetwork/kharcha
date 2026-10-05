@@ -1,0 +1,56 @@
+name: CI
+
+on:
+ push:
+   branches: [main]
+ pull_request:
+   branches: [main]
+
+
+jobs:
+ mobile:
+   runs-on: ubuntu-latest
+   defaults:
+     run:
+       working-directory: mobile
+   steps:
+     - name: Checkout
+       uses: actions/checkout@v4
+     - name: Set up Node.js
+       uses: actions/setup-node@v4
+       with:
+         node-version: '22.x'
+         cache: npm
+         cache-dependency-path: mobile/package-lock.json
+     - name: Install dependencies
+       run: npm ci
+     - name: Lint
+       run: npm run lint
+     - name: Type check
+       run: npm run typecheck
+     - name: Test
+       run: npm test
+
+
+ api:
+   runs-on: ubuntu-latest
+   defaults:
+     run:
+       working-directory: api
+   steps:
+     - name: Checkout
+       uses: actions/checkout@v4
+     - name: Set up Node.js
+       uses: actions/setup-node@v4
+       with:
+         node-version: '22.x'
+         cache: npm
+         cache-dependency-path: api/package-lock.json
+     - name: Install dependencies
+       run: npm ci
+     - name: Type check
+       run: npm run typecheck
+     - name: Test
+       run: npm test
+     - name: Build
+       run: npm run build

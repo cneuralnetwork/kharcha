@@ -2,6 +2,23 @@
 
 # Kharcha
 
+<div align="center">
+  <a href="https://github.com/cneuralnetwork/kharcha/actions/workflows/ci.yml"><img src="https://github.com/cneuralnetwork/kharcha/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+  <a href="https://github.com/cneuralnetwork/kharcha/stargazers"><img src="https://img.shields.io/github/stars/cneuralnetwork/kharcha?style=social" alt="GitHub Stars"></a>
+  <a href="mobile/package.json"><img src="https://img.shields.io/badge/node-%E2%89%A522.13-339933?logo=node.js&logoColor=white" alt="Node ≥22.13"></a>
+</div>
+
+<p align="center">
+  <a href="#what-you-can-do">Features</a> ·
+  <a href="#run-from-source">Getting Started</a> ·
+  <a href="#contributing">Contributing</a> ·
+  <a href="https://github.com/cneuralnetwork/kharcha/issues">Pick an Issue</a> ·
+  <a href="https://github.com/cneuralnetwork/kharcha/issues/new?template=bug_report.md">Report a Bug</a> ·
+  <a href="https://github.com/cneuralnetwork/kharcha/issues/new?template=feature_request.md">Request a Feature</a>
+</p>
+
 **A little clearer every day.** Kharcha turns bank transaction SMS into a private spending ledger. It keeps the original message beside the parsed amount, so you can check the source, correct a name or category, and decide what belongs in your ledger.
 
 This repository contains a working Expo app and a small Render backup API. The app works without an account or backend. The API is used only when you opt into encrypted backup.
@@ -112,6 +129,10 @@ The parser is intentionally conservative. It requires a debit or credit signal a
 | [`mobile/src/lib/backup.ts`](mobile/src/lib/backup.ts) | On-device encryption and recovery code |
 | [`api/src`](api/src) | Render backup HTTP API and Postgres store |
 | [`docs/brand`](docs/brand) | Ready-to-use promotional art and generator |
+
+## Contributing
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for the fork/clone workflow, branch naming, coding standards, and how to run tests for both `mobile` and `api`. Everyone participating is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md). Found a security issue? Report it privately per [SECURITY.md](SECURITY.md) instead of opening a public issue. Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md).
 
 ## Build and verify
 

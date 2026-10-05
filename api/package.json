@@ -1,8 +1,16 @@
 {
   "name": "kharcha-backup-api",
   "version": "1.0.0",
+  "license": "MIT",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cneuralnetwork/kharcha.git",
+    "directory": "api"
+  },
+  "bugs": "https://github.com/cneuralnetwork/kharcha/issues",
+  "homepage": "https://github.com/cneuralnetwork/kharcha#readme",
   "engines": {
     "node": ">=22.13"
   },

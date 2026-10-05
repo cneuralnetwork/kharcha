@@ -8,5 +8,7 @@
 **/coverage/
 mobile/android/
 mobile/ios/
+**/.gradle/
 *.log
+*.tsbuildinfo
 .DS_Store
