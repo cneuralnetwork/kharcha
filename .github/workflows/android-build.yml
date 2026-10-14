@@ -1,0 +1,48 @@
+name: Android Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: mobile
+
+      - name: Generate Android project via Expo prebuild
+        run: npx expo prebuild --platform android --no-install
+        working-directory: mobile
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compile KharchaSms Kotlin module
+        run: ./gradlew assembleDebug --no-daemon -p android
+        working-directory: mobile

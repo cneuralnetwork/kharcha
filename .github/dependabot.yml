@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /mobile
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - mobile
+
+  - package-ecosystem: npm
+    directory: /api
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - api
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - infrastructure
