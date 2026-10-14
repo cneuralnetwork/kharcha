@@ -1,0 +1,18 @@
+mobile:
+  - changed-files:
+    - any-glob-to-any-file: 'mobile/**'
+
+api:
+  - changed-files:
+    - any-glob-to-any-file: 'api/**'
+
+infrastructure:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**'
+    - any-glob-to-any-file: 'compose.yaml'
+    - any-glob-to-any-file: 'render.yaml'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '*.md'
+    - any-glob-to-any-file: 'docs/**'
